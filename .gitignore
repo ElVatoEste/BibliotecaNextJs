@@ -3,6 +3,11 @@
 /.pnp
 .pnp.js
 
+# enviorment
+.env
+
+/.idea
+
 # testing
 /coverage
 

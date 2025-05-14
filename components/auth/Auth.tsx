@@ -4,15 +4,14 @@ import firebase from "../../firebase/clientApp";
 
 // Configure FirebaseUI.
 const uiConfig = {
-  // Redirect to / after sign in is successful. Alternatively you can provide a callbacks.signInSuccess function.
-  signInSuccessUrl: "/",
-  // We will display GitHub as auth providers.
+  signInFlow: 'popup',
+  signInSuccessUrl: '/', // redirige al home al iniciar sesión
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.GithubAuthProvider.PROVIDER_ID,
     firebase.auth.EmailAuthProvider.PROVIDER_ID,
   ],
 };
+
 
 function SignInScreen() {
   return (
