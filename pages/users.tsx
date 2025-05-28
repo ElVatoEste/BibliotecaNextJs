@@ -3,7 +3,7 @@ import Shell from "../components/shell";
 import Content from "../components/content/Content";
 import { GetServerSidePropsContext } from "next";
 import nookies from "nookies";
-import { userIsLoggedIn } from "../firebase/auth/utils";
+
 
 export default function Users() {
   return (
@@ -16,6 +16,7 @@ export default function Users() {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const { userIsLoggedIn } = await import("../firebase/auth/utils.server");
   const cookies = nookies.get(ctx);
   const authenticated = await userIsLoggedIn(cookies);
 

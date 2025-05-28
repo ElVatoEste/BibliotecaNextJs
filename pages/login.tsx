@@ -1,34 +1,45 @@
+// pages/login.tsx
 import React from "react";
-import Auth from "../components/auth";
+import AuthForm from "../components/auth/Auth";
 import { GetServerSidePropsContext } from "next";
 import nookies from "nookies";
-import { userIsLoggedIn } from "../firebase/auth/utils";
 import LogoSvg from "../images/svg/logo.svg";
+import fondoPagina from "../images/fondopagina.jpeg";
 
 export default function Login() {
-  return (
-    <>
-      <div className="relative flex min-h-screen flex-col justify-center text-center overflow-hidden bg-cover bg-gradient-to-tr from-blue-300 to-indigo-800 py-6 sm:py-6">
-        <div className="flex justify-center text-white no-underline hover:no-underline font-bold text-2xl lg:text-4xl pb-5">
-          <LogoSvg width="2.5rem" height="2.5rem" />
-          <div className="pl-2">My App</div>
+    return (
+        <div
+            className="relative h-screen bg-cover bg-center"
+            style={{
+                backgroundImage: `url(${fondoPagina.src})`,
+            }}
+        >
+            {/* Capa de difuminado + oscurecimiento */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+
+            {/* Contenido principal */}
+            <div className="relative z-10 flex min-h-screen flex-col justify-center items-center">
+                {/* Logo */}
+                <div className="flex items-center text-white font-bold text-2xl lg:text-4xl mb-8">
+                    <LogoSvg width="2.5rem" height="2.5rem" />
+                    <span className="pl-2">Biblioteca UAM</span>
+                </div>
+
+                {/* Formulario */}
+                <AuthForm />
+            </div>
         </div>
-        <Auth />
-      </div>
-    </>
-  );
+    );
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const cookies = nookies.get(ctx);
-  const authenticated = await userIsLoggedIn(cookies);
+    const cookies = nookies.get(ctx);
+    const { userIsLoggedIn } = await import("../firebase/auth/utils.server");
 
-  if (authenticated) {
-    ctx.res.writeHead(302, { Location: "/" });
-    ctx.res.end();
-  }
+    if (await userIsLoggedIn(cookies)) {
+        ctx.res.writeHead(302, { Location: "/" });
+        ctx.res.end();
+    }
 
-  return {
-    props: {},
-  };
+    return { props: {} };
 }

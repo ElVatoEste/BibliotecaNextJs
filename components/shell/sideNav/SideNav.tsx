@@ -31,7 +31,7 @@ const SideNavHeader = () => {
       <Link href="/">
         <a className="text-xl font-bold no-underline text-blue-50 hover:text-blue-100">
           <LogoSvg width="2.5rem" height="2.5rem" className="inline" />
-          {!collapsed && <div className="inline ml-2">My App</div>}
+          {!collapsed && <div className="inline ml-2">Biblioteca UAM</div>}
         </a>
       </Link>
     </div>

@@ -1,48 +1,42 @@
-import React, { useState, useEffect, useContext, createContext } from "react";
+// firebase/auth/auth.tsx
+import React, { useState, useEffect, createContext, useContext } from "react";
 import nookies from "nookies";
-import firebaseClient from "../clientApp";
+import firebase from "../clientApp";
 
-const AuthContext = createContext<{ user: firebaseClient.User | null }>({
-  user: null,
-});
+interface AuthContextProps {
+  user: firebase.User | null;
+}
 
-export function AuthProvider({ children }: any) {
-  const [user, setUser] = useState<firebaseClient.User | null>(null);
+const AuthContext = createContext<AuthContextProps>({ user: null });
+
+export const AuthProvider: React.FC = ({ children }) => {
+  const [user, setUser] = useState<firebase.User | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as any).nookies = nookies;
-    }
-    return firebaseClient.auth().onIdTokenChanged(async (user) => {
+    return firebase.auth().onIdTokenChanged(async (user) => {
       if (!user) {
         setUser(null);
         nookies.destroy(null, "token");
-        nookies.set(null, "token", "", { path: "/" });
         return;
       }
-
       const token = await user.getIdToken();
       setUser(user);
-      nookies.destroy(null, "token");
       nookies.set(null, "token", token, { path: "/" });
     });
   }, []);
 
-  // force refresh the token every 10 minutes
+  // refrescar token cada 10 minutos
   useEffect(() => {
     const handle = setInterval(async () => {
-      console.log(`refreshing token...`);
-      const user = firebaseClient.auth().currentUser;
-      if (user) await user.getIdToken(true);
+      const u = firebase.auth().currentUser;
+      if (u) await u.getIdToken(true);
     }, 10 * 60 * 1000);
     return () => clearInterval(handle);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+      <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
   );
-}
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };
+
+export const useAuth = () => useContext(AuthContext);
