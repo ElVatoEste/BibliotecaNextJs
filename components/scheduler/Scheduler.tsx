@@ -4,7 +4,7 @@ import React from "react";
 import Shell from "../shell";
 import Content from "../content/Content";
 import Calendar from "./Calendar";
-import {CalendarEvent} from "./interfaces/CalendarEvent";
+import {CalendarEvent} from "../../interfaces/CalendarEvent";
 import {es} from "date-fns/locale";
 
 

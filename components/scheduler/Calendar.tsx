@@ -12,8 +12,8 @@ import {
     isSameDay,
     parseISO,
 } from "date-fns";
-import { CalendarEvent } from "./interfaces/CalendarEvent";
-import {CalendarProps} from "./interfaces/interfaces";
+import { CalendarEvent } from "../../interfaces/CalendarEvent";
+import {CalendarProps} from "../../interfaces/interfaces";
 
 export default function Calendar({
                                      events = [],
