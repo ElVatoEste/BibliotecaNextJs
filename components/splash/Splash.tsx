@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import hero from "../../images/hero.png";
 import fondoPagina from "../../images/fondopagina.jpeg";
-import LogoSvg from "../../images/svg/logo.svg";
+import Logo from "../../images/logo.png";
 
 export default function Splash() {
   return (
@@ -22,7 +22,13 @@ export default function Splash() {
             {/* Header */}
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center font-bold text-2xl lg:text-4xl text-white">
-                <LogoSvg width="2.5rem" height="2.5rem" />
+                <Image
+                    src={Logo}
+                    width={40}
+                    height={40}
+                    alt="Logo"
+                    className="inline"
+                />
                 <div className="pl-2">Biblioteca UAM</div>
               </div>
 

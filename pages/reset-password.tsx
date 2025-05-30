@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import fondoPagina from "../images/fondopagina.jpeg";
-import LogoSvg from "../images/svg/logo.svg";
 import firebase from "../firebase/clientApp";
+import Logo from "../images/logo.png";
+import Image from "next/image";
 
 export default function ResetPasswordPage() {
     const router = useRouter();
@@ -51,7 +52,13 @@ export default function ResetPasswordPage() {
 
             <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6">
                 <div className="flex items-center text-white font-bold text-2xl lg:text-4xl mb-8">
-                    <LogoSvg width="2.5rem" height="2.5rem" />
+                    <Image
+                        src={Logo}
+                        width={40}
+                        height={40}
+                        alt="Logo"
+                        className="inline"
+                    />
                     <span className="ml-2">Biblioteca UAM</span>
                 </div>
 

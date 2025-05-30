@@ -5,11 +5,11 @@ import { GetServerSidePropsContext } from "next";
 import nookies from "nookies";
 
 
-export default function Users() {
+export default function Estudiantes() {
   return (
     <Shell>
-      <Content title="Users">
-        <>Users</>
+      <Content title="Estudiantes">
+        <>Estudiantes</>
       </Content>
     </Shell>
   );

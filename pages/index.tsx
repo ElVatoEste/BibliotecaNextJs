@@ -1,5 +1,5 @@
 import React from "react";
-import Dashboard from "../components/dashboard";
+import Scheduler from "../components/scheduler";
 import Splash from "../components/splash";
 
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
@@ -11,7 +11,7 @@ export default function index(
   return (
     <div>
       {!props.authenticated && <Splash />}
-      {props.authenticated && <Dashboard />}
+      {props.authenticated && <Scheduler />}
     </div>
   );
 }
