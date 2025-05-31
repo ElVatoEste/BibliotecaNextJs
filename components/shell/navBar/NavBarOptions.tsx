@@ -19,21 +19,21 @@ export default function NavBarOptions({
       <NavItem
         link="/"
         svgIcon={<Svg.ChartPieSvg />}
-        title="Dashboard"
+        title="Calendario"
         expanded={expanded}
       />
       <NavItem
-        link="/users"
+        link="/estudiantes"
         svgIcon={<Svg.UsersSvg />}
-        title="Users"
+        title="Estudiantes"
         expanded={expanded}
       />
-      <NavItem
-        link="/messages"
-        svgIcon={<Svg.MessagesSvg />}
-        title="Messages"
-        expanded={expanded}
-      />
+      {/*<NavItem*/}
+      {/*  link="/messages"*/}
+      {/*  svgIcon={<Svg.MessagesSvg />}*/}
+      {/*  title="Messages"*/}
+      {/*  expanded={expanded}*/}
+      {/*/>*/}
       {smallScreen && (
         <>
           <NavItem link="/settings" svgIcon={<Svg.CogSvg />} title="Settings" />
@@ -63,7 +63,7 @@ const NavItem = ({ link, svgIcon, title, expanded = true }: NavItemProps) => {
     <Link href={link}>
       <a
         className={`flex items-center no-underline text-blue-50 hover:text-blue-100 p-3 rounded-md ${
-          isActivePage(link, router.pathname) ? "bg-indigo-800" : ""
+          isActivePage(link, router.pathname) ? "bg-[#007C91]" : ""
         }`}
       >
         {svgIcon}

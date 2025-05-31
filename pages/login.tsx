@@ -3,8 +3,9 @@ import React from "react";
 import AuthForm from "../components/auth/Auth";
 import { GetServerSidePropsContext } from "next";
 import nookies from "nookies";
-import LogoSvg from "../images/svg/logo.svg";
 import fondoPagina from "../images/fondopagina.jpeg";
+import Logo from "../images/logo.png";
+import Image from "next/image";
 
 export default function Login() {
     return (
@@ -21,7 +22,13 @@ export default function Login() {
             <div className="relative z-10 flex min-h-screen flex-col justify-center items-center">
                 {/* Logo */}
                 <div className="flex items-center text-white font-bold text-2xl lg:text-4xl mb-8">
-                    <LogoSvg width="2.5rem" height="2.5rem" />
+                    <Image
+                        src={Logo}
+                        width={40}
+                        height={40}
+                        alt="Logo"
+                        className="inline"
+                    />
                     <span className="pl-2">Biblioteca UAM</span>
                 </div>
 
