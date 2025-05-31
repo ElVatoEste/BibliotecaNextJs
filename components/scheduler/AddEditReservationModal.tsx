@@ -1,31 +1,40 @@
-"use client"
+// components/AddEditReservationModal.tsx
+"use client";
 
-import type React from "react"
-import { useEffect, useRef, useState } from "react"
-import type { CalendarEvent } from "../../interfaces/CalendarEvent"
-import { formatISO } from "date-fns"
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import type { CalendarEvent } from "../../interfaces/CalendarEvent";
+import { formatISO } from "date-fns";
 
 interface AddEditReservationModalProps {
-    date?: Date
-    event?: CalendarEvent
-    onClose: () => void
-    onSave: (data: CalendarEvent) => Promise<void>
+    date?: Date;
+    event?: CalendarEvent;
+    onClose: () => void;
+    onSave: (data: CalendarEvent) => Promise<void>;
 }
 
-export default function AddEditReservationModal({ date, event, onClose, onSave }: AddEditReservationModalProps) {
-    const overlayRef = useRef<HTMLDivElement>(null)
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [errors, setErrors] = useState<Record<string, string>>({})
+export default function AddEditReservationModal({
+                                                    date,
+                                                    event,
+                                                    onClose,
+                                                    onSave,
+                                                }: AddEditReservationModalProps) {
+    const overlayRef = useRef<HTMLDivElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // errors: clave = nombreDelCampo, valor = mensaje de error
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Cerrar modal al hacer clic fuera
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (overlayRef.current && e.target === overlayRef.current) {
-                onClose()
+                onClose();
             }
-        }
-        document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
-    }, [onClose])
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [onClose]);
 
     const [formData, setFormData] = useState<CalendarEvent>({
         idReserva: event?.idReserva ?? 0,
@@ -34,120 +43,163 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
         correo: event?.correo ?? "",
         asuntoReserva: event?.asuntoReserva ?? "",
         cantidadPersonas: event?.cantidadPersonas ?? 1,
-        fechaEntrada: event ? event.fechaEntrada : date ? formatISO(date).slice(0, 16) : "",
-        fechaSalida: event ? event.fechaSalida : date ? formatISO(date).slice(0, 16) : "",
+        fechaEntrada: event
+            ? event.fechaEntrada
+            : date
+                ? formatISO(date).slice(0, 16)
+                : "",
+        fechaSalida: event
+            ? event.fechaSalida
+            : date
+                ? formatISO(date).slice(0, 16)
+                : "",
         utilizaPizarra: event?.utilizaPizarra ?? false,
         utilizaProyector: event?.utilizaProyector ?? false,
         utilizaComputadora: event?.utilizaComputadora ?? false,
         extras: event?.extras,
         asistencia: event?.asistencia ?? "PENDIENTE",
-    })
+    });
 
+    // Validaciones básicas de los campos
     const validateForm = () => {
-        const newErrors: Record<string, string> = {}
+        const newErrors: Record<string, string> = {};
 
         if (!formData.nombreEstudiante.trim()) {
-            newErrors.nombreEstudiante = "El nombre es requerido"
+            newErrors.nombreEstudiante = "El nombre es requerido";
         }
 
         if (!formData.cif.trim()) {
-            newErrors.cif = "El CIF es requerido"
+            newErrors.cif = "El CIF es requerido";
         }
 
         if (!formData.correo.trim()) {
-            newErrors.correo = "El correo es requerido"
+            newErrors.correo = "El correo es requerido";
         } else if (!/\S+@\S+\.\S+/.test(formData.correo)) {
-            newErrors.correo = "El correo no es válido"
+            newErrors.correo = "El correo no es válido";
         }
 
         if (!formData.asuntoReserva.trim()) {
-            newErrors.asuntoReserva = "El asunto es requerido"
+            newErrors.asuntoReserva = "El asunto es requerido";
         }
 
         if (new Date(formData.fechaSalida) <= new Date(formData.fechaEntrada)) {
-            newErrors.fechaSalida = "La fecha de salida debe ser posterior a la fecha de entrada"
+            newErrors.fechaSalida =
+                "La fecha de salida debe ser posterior a la fecha de entrada";
         }
 
         if (formData.cantidadPersonas < 1) {
-            newErrors.cantidadPersonas = "Debe haber al menos 1 persona"
+            newErrors.cantidadPersonas = "Debe haber al menos 1 persona";
         }
 
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
-    }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target
+    // Maneja cambios en inputs, checkboxes, etc.
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+        const { name, value, type } = e.target;
 
         if (type === "checkbox") {
-            const el = e.target as HTMLInputElement
+            const el = e.target as HTMLInputElement;
             setFormData((prev) => ({
                 ...prev,
                 [name]: el.checked,
-            }))
+            }));
         } else if (name === "cantidadPersonas") {
             setFormData((prev) => ({
                 ...prev,
                 [name]: Number.parseInt(value) || 1,
-            }))
+            }));
         } else {
             setFormData((prev) => ({
                 ...prev,
                 [name]: value,
-            }))
+            }));
         }
 
-        // Clear error when user starts typing
+        // Limpiar error de ese campo cuando el usuario escribe
         if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: "" }))
+            setErrors((prev) => ({ ...prev, [name]: "" }));
         }
-    }
+    };
+
+    // Efecto para mostrar error general en caso de throws no JSON
+    const [generalError, setGeneralError] = useState<string>("");
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
+        setGeneralError(""); // Limpiamos mensaje general
+        setErrors({});       // Y también los errores por campo
 
+        // 1) Validaciones básicas
         if (!validateForm()) {
-            return
+            return;
         }
 
-        setIsSubmitting(true)
+        // 2) Llamar onSave (que a su vez hace validaciones asíncronas)
+        setIsSubmitting(true);
         try {
-            await onSave(formData)
-            onClose()
+            await onSave(formData);
+            onClose();
         } catch (error) {
-            console.error("Error saving reservation:", error)
+            console.error("Error en onSave:", error);
+
+            if (error instanceof Error) {
+                const raw = error.message;
+
+                // Intentamos parsear raw como JSON
+                try {
+                    const parsed = JSON.parse(raw) as Record<string, string>;
+                    setErrors(parsed);
+                } catch (parseErr) {
+                    // Si NO es JSON, mostramos el mensaje completo que vino
+                    setGeneralError(raw || "Ocurrió un error al guardar la reserva.");
+                }
+            } else {
+                setGeneralError("Ocurrió un error inesperado.");
+            }
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
+
 
     const getStatusBadge = (status: string) => {
         const statusConfig = {
             PENDIENTE: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Pendiente" },
             ASISTENCIA: { bg: "bg-green-100", text: "text-green-800", label: "Asistencia" },
             INASISTENCIA: { bg: "bg-red-100", text: "text-red-800", label: "Inasistencia" },
-        }
-
-        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDIENTE
-
+        };
+        const config =
+            statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDIENTE;
         return (
             <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}
             >
         {config.label}
       </span>
-        )
-    }
+        );
+    };
 
     return (
-        <div ref={overlayRef} className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div
+            ref={overlayRef}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        >
             <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#007C91] px-6 py-4 text-white">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                             <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
                                     <path
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -157,7 +209,9 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                 </svg>
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold">{event ? "Editar Reserva" : "Nueva Reserva"}</h2>
+                                <h2 className="text-xl font-bold">
+                                    {event ? "Editar Reserva" : "Nueva Reserva"}
+                                </h2>
                                 <p className="text-blue-100 text-sm">
                                     {event
                                         ? "Modifica los detalles de la reserva"
@@ -167,9 +221,22 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                         </div>
                         <div className="flex items-center space-x-3">
                             {event && getStatusBadge(formData.asistencia)}
-                            <button className="text-white hover:text-gray-200 transition-colors p-1" onClick={onClose}>
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            <button
+                                className="text-white hover:text-gray-200 transition-colors p-1"
+                                onClick={onClose}
+                            >
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
                                 </svg>
                             </button>
                         </div>
@@ -179,11 +246,21 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                 {/* Content */}
                 <div className="overflow-y-auto max-h-[calc(95vh-120px)]">
                     <form onSubmit={handleSubmit} className="p-6 space-y-8">
+                        {/* Mostrar error general, si existe */}
+                        {generalError && (
+                            <p className="text-center text-red-600 mb-4">{generalError}</p>
+                        )}
+
                         {/* Información Personal */}
                         <div className="bg-gray-50 rounded-lg p-6">
                             <div className="flex items-center space-x-2 mb-4">
                                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg
+                                        className="w-4 h-4 text-[#007C91]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -192,24 +269,35 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Información Personal</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Información Personal
+                                </h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Nombre Estudiante */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Estudiante *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Nombre del Estudiante *
+                                    </label>
                                     <input
                                         type="text"
                                         name="nombreEstudiante"
                                         value={formData.nombreEstudiante}
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                                            errors.nombreEstudiante ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            errors.nombreEstudiante
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
                                         }`}
                                         placeholder="Ingrese el nombre completo"
                                     />
                                     {errors.nombreEstudiante && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -220,8 +308,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         </p>
                                     )}
                                 </div>
+
+                                {/* CIF */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">CIF *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        CIF *
+                                    </label>
                                     <input
                                         type="text"
                                         name="cif"
@@ -234,7 +326,11 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                     />
                                     {errors.cif && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -245,10 +341,17 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         </p>
                                     )}
                                 </div>
+
+                                {/* Correo Electrónico */}
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         <div className="flex items-center space-x-2">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg
+                                                className="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -265,13 +368,19 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         value={formData.correo}
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                                            errors.correo ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            errors.correo
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
                                         }`}
                                         placeholder="ejemplo@correo.com"
                                     />
                                     {errors.correo && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -289,33 +398,49 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                         <div className="bg-gray-50 rounded-lg p-6">
                             <div className="flex items-center space-x-2 mb-4">
                                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg
+                                        className="w-4 h-4 text-[#007C91]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
                                             strokeWidth={2}
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Detalles de la Reserva</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Detalles de la Reserva
+                                </h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Asunto Reserva */}
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Asunto de la Reserva *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Asunto de la Reserva *
+                                    </label>
                                     <input
                                         type="text"
                                         name="asuntoReserva"
                                         value={formData.asuntoReserva}
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                                            errors.asuntoReserva ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            errors.asuntoReserva
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
                                         }`}
                                         placeholder="Describe el propósito de la reserva"
                                     />
                                     {errors.asuntoReserva && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -326,10 +451,17 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         </p>
                                     )}
                                 </div>
+
+                                {/* Cantidad Personas */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         <div className="flex items-center space-x-2">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg
+                                                className="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -347,12 +479,18 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         value={formData.cantidadPersonas}
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                                            errors.cantidadPersonas ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            errors.cantidadPersonas
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
                                         }`}
                                     />
                                     {errors.cantidadPersonas && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -363,8 +501,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         </p>
                                     )}
                                 </div>
+
+                                {/* Estado Asistencia */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Estado de Asistencia</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Estado de Asistencia
+                                    </label>
                                     <select
                                         name="asistencia"
                                         value={formData.asistencia}
@@ -383,7 +525,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                         <div className="bg-gray-50 rounded-lg p-6">
                             <div className="flex items-center space-x-2 mb-4">
                                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg
+                                        className="w-4 h-4 text-[#007C91]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -392,23 +539,34 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Fechas y Horarios</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Fechas y Horarios
+                                </h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Fecha Entrada */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Fecha y Hora de Entrada *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Fecha y Hora de Entrada *
+                                    </label>
                                     <input
                                         type="datetime-local"
                                         name="fechaEntrada"
                                         value={formData.fechaEntrada.slice(0, 16)}
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                                            errors.fechaEntrada ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            errors.fechaEntrada
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
                                         }`}
                                     />
                                     {errors.fechaEntrada && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -419,20 +577,30 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         </p>
                                     )}
                                 </div>
+
+                                {/* Fecha Salida */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Fecha y Hora de Salida *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Fecha y Hora de Salida *
+                                    </label>
                                     <input
                                         type="datetime-local"
                                         name="fechaSalida"
                                         value={formData.fechaSalida.slice(0, 16)}
                                         onChange={handleChange}
                                         className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                                            errors.fechaSalida ? "border-red-500 bg-red-50" : "border-gray-300"
+                                            errors.fechaSalida
+                                                ? "border-red-500 bg-red-50"
+                                                : "border-gray-300"
                                         }`}
                                     />
                                     {errors.fechaSalida && (
                                         <p className="mt-1 text-sm text-red-600 flex items-center">
-                                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg
+                                                className="w-4 h-4 mr-1"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                            >
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -450,7 +618,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                         <div className="bg-gray-50 rounded-lg p-6">
                             <div className="flex items-center space-x-2 mb-4">
                                 <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg
+                                        className="w-4 h-4 text-[#007C91]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -459,10 +632,15 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900">Equipamiento Requerido</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Equipamiento Requerido
+                                </h3>
                             </div>
-                            <p className="text-sm text-gray-600 mb-4">Selecciona el equipamiento que necesitas para tu reserva</p>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Selecciona el equipamiento que necesitas para tu reserva
+                            </p>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                {/* Pizarra */}
                                 <label className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -473,7 +651,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                     />
                                     <div className="flex items-center space-x-2">
                                         <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg
+                                                className="w-5 h-5 text-[#007C91]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -485,6 +668,24 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         <span className="font-medium text-gray-900">Pizarra</span>
                                     </div>
                                 </label>
+                                {errors.utilizaPizarra && (
+                                    <p className="col-span-3 mt-1 text-sm text-red-600 flex items-center">
+                                        <svg
+                                            className="w-4 h-4 mr-1"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                        {errors.utilizaPizarra}
+                                    </p>
+                                )}
+
+                                {/* Proyector */}
                                 <label className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -495,7 +696,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                     />
                                     <div className="flex items-center space-x-2">
                                         <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg
+                                                className="w-5 h-5 text-[#007C91]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -507,6 +713,24 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         <span className="font-medium text-gray-900">Proyector</span>
                                     </div>
                                 </label>
+                                {errors.utilizaProyector && (
+                                    <p className="col-span-3 mt-1 text-sm text-red-600 flex items-center">
+                                        <svg
+                                            className="w-4 h-4 mr-1"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                        {errors.utilizaProyector}
+                                    </p>
+                                )}
+
+                                {/* Computadora */}
                                 <label className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -517,7 +741,12 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                     />
                                     <div className="flex items-center space-x-2">
                                         <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-[#007C91]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg
+                                                className="w-5 h-5 text-[#007C91]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -529,6 +758,22 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                                         <span className="font-medium text-gray-900">Computadora</span>
                                     </div>
                                 </label>
+                                {errors.utilizaComputadora && (
+                                    <p className="col-span-3 mt-1 text-sm text-red-600 flex items-center">
+                                        <svg
+                                            className="w-4 h-4 mr-1"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                        {errors.utilizaComputadora}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </form>
@@ -584,5 +829,5 @@ export default function AddEditReservationModal({ date, event, onClose, onSave }
                 </div>
             </div>
         </div>
-    )
+    );
 }

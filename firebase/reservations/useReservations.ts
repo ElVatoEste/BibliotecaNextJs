@@ -143,9 +143,74 @@ export function useReservationsLogic(
         }
     }, [firstDocsStack, loading]);
 
+    // --- checkAvailability(evt): verifica capacidad y equipos ocupados ---
+    const checkAvailability = useCallback(
+        async (evt: CalendarEvent): Promise<Record<string, string>> => {
+            const availabilityErrors: Record<string, string> = {};
+
+            const entradaDate = new Date(evt.fechaEntrada);
+            const salidaDate = new Date(evt.fechaSalida);
+
+            const toTimestampLocal = (d: Date) => firebase.firestore.Timestamp.fromDate(d);
+
+            const snapshot = await db
+                .collection("reservas")
+                .where("fecha_entrada", "<", toTimestampLocal(salidaDate))
+                .get();
+
+            let totalPersonasEnRango = 0;
+            let pizarraOcupada = false;
+            let proyectorOcupado = false;
+            let computadoraOcupada = false;
+
+            snapshot.docs.forEach((doc) => {
+                const data = doc.data();
+                const entrada = data.fecha_entrada.toDate();
+                const salida = data.fecha_salida.toDate();
+
+                if (
+                    salida > entradaDate &&
+                    (!evt.idReserva || data.id_reserva !== evt.idReserva)
+                ) {
+                    totalPersonasEnRango += data.cantidad_personas ?? 0;
+                    if (data.utiliza_pizarra) pizarraOcupada = true;
+                    if (data.utiliza_proyector) proyectorOcupado = true;
+                    if (data.utiliza_computadora) computadoraOcupada = true;
+                }
+            });
+
+            const capacidadMaxima = 16;
+            if (totalPersonasEnRango + evt.cantidadPersonas > capacidadMaxima) {
+                availabilityErrors.cantidadPersonas = `La cantidad de personas excede la capacidad máxima (${capacidadMaxima}). Actualmente hay ${totalPersonasEnRango} espacios disponibles.`;
+            }
+
+            if (evt.utilizaPizarra && pizarraOcupada) {
+                availabilityErrors.utilizaPizarra = "La pizarra no está disponible en ese horario.";
+            }
+            if (evt.utilizaProyector && proyectorOcupado) {
+                availabilityErrors.utilizaProyector = "El proyector no está disponible en ese horario.";
+            }
+            if (evt.utilizaComputadora && computadoraOcupada) {
+                availabilityErrors.utilizaComputadora = "La computadora no está disponible en ese horario.";
+            }
+
+            return availabilityErrors;
+        },
+        []
+    );
+
     // --- CRUD con manejo de errores y refresco de página inicial ---
     const addReservation = useCallback(
         async (evt: CalendarEvent) => {
+
+            // 1) Verificar disponibilidad
+            const availabilityErrors = await checkAvailability(evt);
+            if (Object.keys(availabilityErrors).length > 0) {
+                // Lanzamos un error con la info de validación
+                throw new Error(JSON.stringify(availabilityErrors));
+            }
+
+            // 2) Si tod bien, creamos la reserva en Firestore
             try {
                 const nuevoId = Date.now();
                 await db.collection("reservas").add({
@@ -167,11 +232,19 @@ export function useReservationsLogic(
                 console.error("Error al agregar reserva:", err);
             }
         },
-        [loadPage]
+        [checkAvailability, loadPage]
     );
 
     const updateReservation = useCallback(
         async (evt: CalendarEvent) => {
+
+            // 1) Verificar disponibilidad
+            const availabilityErrors = await checkAvailability(evt);
+            if (Object.keys(availabilityErrors).length > 0) {
+                throw new Error(JSON.stringify(availabilityErrors));
+            }
+
+            // 2) Si está OK, buscamos el doc y actualizamos
             try {
                 const querySnap = await db
                     .collection("reservas")
@@ -200,7 +273,7 @@ export function useReservationsLogic(
                 console.error("Error al actualizar reserva:", err);
             }
         },
-        [loadPage]
+        [checkAvailability, loadPage]
     );
 
     const deleteReservation = useCallback(
