@@ -13,8 +13,6 @@ const ReservationsContext = createContext<ReservationsContextValue>({
     loading: true,
     startDate: new Date(0),       // valor placeholder; se sobrescribirá en el Provider
     endDate: new Date(0),
-    setStartDate: () => throwFn(), // placeholder
-    setEndDate: () => throwFn(),
     nextPage: () => throwFn(),
     prevPage: () => throwFn(),
     addReservation: async () => throwFn(),
