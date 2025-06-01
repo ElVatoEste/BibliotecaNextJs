@@ -3,9 +3,9 @@
 import React from "react";
 import { Transition } from "@headlessui/react";
 import { useState } from "react";
-import NavBarOptions from "./NavBarOptions";
 import Logo from "../../../images/logo.png";
 import Image from "next/image";
+import NavOptions from "../NavOptions";
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +68,7 @@ export default function NavBar() {
           {() => (
               <div className="md:hidden" id="mobile-menu">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#0099A8]">
-                  <NavBarOptions smallScreen={true} />
+                  <NavOptions smallScreen={true} />
                 </div>
               </div>
           )}

@@ -14,8 +14,8 @@ import {
 } from "date-fns";
 import { CalendarEvent } from "../../firebase/models/CalendarEvent";
 import { CalendarProps } from "../../interfaces/CalendarProps";
-import PreviewEvent from "./PreviewEvent";
-import EventModal from "./EventModal";
+import PreviewEvent from "./preview/PreviewEvent";
+import EventModal from "./modal/EventModal";
 
 export default function Calendar({
                                      events = [],

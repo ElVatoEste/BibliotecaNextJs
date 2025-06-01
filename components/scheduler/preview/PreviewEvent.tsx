@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { format, parseISO } from "date-fns"
-import type { CalendarEvent } from "../../firebase/models/CalendarEvent"
+import type { CalendarEvent } from "../../../firebase/models/CalendarEvent"
 
 interface PreviewEventProps {
     event: CalendarEvent

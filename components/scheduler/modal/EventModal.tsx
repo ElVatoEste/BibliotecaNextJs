@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { format, parseISO } from "date-fns"
 import { es } from "date-fns/locale"
-import type { CalendarEvent } from "../../firebase/models/CalendarEvent"
+import type { CalendarEvent } from "../../../firebase/models/CalendarEvent"
 
 interface EventModalProps {
     event: CalendarEvent

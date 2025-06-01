@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
 import Shell from "../shell";
 import Content from "../content/Content";
 import Calendar from "./Calendar";
-import NoReservationsModal from "./NoReservationsModal";
-import AddEditReservationModal from "./AddEditReservationModal";
+import NoReservationsModal from "./modal/NoReservationsModal";
+import AddEditReservationModal from "./modal/AddEditReservationModal";
 import { CalendarEvent } from "../../firebase/models/CalendarEvent";
 import { es } from "date-fns/locale";
 

@@ -3,7 +3,7 @@
 
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import type { CalendarEvent } from "../../firebase/models/CalendarEvent";
+import type { CalendarEvent } from "../../../firebase/models/CalendarEvent";
 import { formatISO } from "date-fns";
 
 interface AddEditReservationModalProps {

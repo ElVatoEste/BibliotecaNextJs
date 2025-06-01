@@ -21,7 +21,6 @@ export const useUserRoles = (): string[] | undefined => {
                     return;
                 }
 
-                // Ahora TS sabe que data() no es undefined
                 const data = snap.data()!;
                 setRoles(Array.isArray(data.roles) ? data.roles : []);
             });
