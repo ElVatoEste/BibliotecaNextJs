@@ -11,6 +11,8 @@ export interface ReservationsContextValue {
     loading: boolean;
     startDate: Date;
     endDate: Date;
+    setStartDate: (d: Date) => void;
+    setEndDate: (d: Date) => void;
     nextPage: () => void;
     prevPage: () => void;
     addReservation: (evt: CalendarEvent) => Promise<void>;
@@ -34,8 +36,8 @@ export function useReservationsLogic(
         ? initialEndDate
         : new Date(now.getFullYear(), now.getMonth() + 2);
 
-    const [startDate] = useState<Date>(defaultStart);
-    const [endDate] = useState<Date>(defaultEnd);
+    const [startDate, setStartDate] = useState<Date>(defaultStart);
+    const [endDate, setEndDate] = useState<Date>(defaultEnd);
 
     // --- Paginación: último documento visible y stack de primeros documentos ---
     const [lastVisibleDoc, setLastVisibleDoc] =
@@ -294,6 +296,8 @@ export function useReservationsLogic(
         loading,
         startDate,
         endDate,
+        setStartDate,
+        setEndDate,
         nextPage,
         prevPage,
         addReservation,
