@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { format, parseISO } from "date-fns"
-import type { CalendarEvent } from "../../interfaces/CalendarEvent"
+import type { CalendarEvent } from "../../firebase/models/CalendarEvent"
 
 interface PreviewEventProps {
     event: CalendarEvent
@@ -76,19 +76,21 @@ export default function PreviewEvent({ event, onClick }: PreviewEventProps) {
             {/* Bottom section */}
             <div className="flex items-center justify-between mt-1">
                 {/* Equipment icons */}
-                <div className="flex items-center space-x-0.5">
+                <div className="hidden sm:flex items-center space-x-0.5">
                     {equipmentIcons.map((icon, index) => (
                         <span key={index} className="text-[10px] opacity-70">
-              {icon}
-            </span>
+                            {icon}
+                        </span>
                     ))}
                 </div>
+
 
                 {/* People count */}
                 {event.cantidadPersonas > 1 && (
                     <div className="flex items-center text-[9px] opacity-60">
                         <svg className="w-2.5 h-2.5 mr-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                            <path
+                                d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                         </svg>
                         {event.cantidadPersonas}
                     </div>
@@ -96,7 +98,8 @@ export default function PreviewEvent({ event, onClick }: PreviewEventProps) {
             </div>
 
             {/* Hover overlay with more details */}
-            <div className="absolute inset-0 bg-white bg-opacity-95 rounded-md opacity-0 transition-opacity duration-200 p-2 flex flex-col justify-center pointer-events-none">
+            <div
+                className="absolute inset-0 bg-white bg-opacity-95 rounded-md opacity-0 transition-opacity duration-200 p-2 flex flex-col justify-center pointer-events-none">
                 <div className="text-xs font-semibold text-gray-800 truncate mb-1">{event.nombreEstudiante}</div>
                 <div className="text-[10px] text-gray-600 truncate mb-1">{event.asuntoReserva}</div>
                 <div className="text-[10px] text-gray-500 mb-1">{timeRange}</div>

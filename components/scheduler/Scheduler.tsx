@@ -6,7 +6,7 @@ import Content from "../content/Content";
 import Calendar from "./Calendar";
 import NoReservationsModal from "./NoReservationsModal";
 import AddEditReservationModal from "./AddEditReservationModal";
-import { CalendarEvent } from "../../interfaces/CalendarEvent";
+import { CalendarEvent } from "../../firebase/models/CalendarEvent";
 import { es } from "date-fns/locale";
 
 // Importamos el contexto nuevo

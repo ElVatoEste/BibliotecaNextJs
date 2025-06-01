@@ -1,5 +1,5 @@
 import type { Locale } from 'date-fns';
-import type { CalendarEvent } from './CalendarEvent';
+import type { CalendarEvent } from '../firebase/models/CalendarEvent';
 
 export interface CalendarProps {
     /** Eventos a mostrar en el calendario */

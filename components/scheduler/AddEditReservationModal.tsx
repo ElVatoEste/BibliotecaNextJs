@@ -3,7 +3,7 @@
 
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import type { CalendarEvent } from "../../interfaces/CalendarEvent";
+import type { CalendarEvent } from "../../firebase/models/CalendarEvent";
 import { formatISO } from "date-fns";
 
 interface AddEditReservationModalProps {
@@ -507,17 +507,12 @@ export default function AddEditReservationModal({
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Estado de Asistencia
                                     </label>
-                                    <select
-                                        name="asistencia"
-                                        value={formData.asistencia}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
-                                    >
-                                        <option value="PENDIENTE">Pendiente</option>
-                                        <option value="ASISTENCIA">Asistencia</option>
-                                        <option value="INASISTENCIA">Inasistencia</option>
-                                    </select>
+                                    <div
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-700">
+                                        {formData.asistencia}
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
 

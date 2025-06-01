@@ -12,7 +12,7 @@ import {
     isSameDay,
     parseISO,
 } from "date-fns";
-import { CalendarEvent } from "../../interfaces/CalendarEvent";
+import { CalendarEvent } from "../../firebase/models/CalendarEvent";
 import { CalendarProps } from "../../interfaces/CalendarProps";
 import PreviewEvent from "./PreviewEvent";
 import EventModal from "./EventModal";

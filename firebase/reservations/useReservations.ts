@@ -1,7 +1,8 @@
 // firebase/reservations/useReservations.ts
 import { useState, useEffect, useCallback } from "react";
 import firebase from "../clientApp"; // Importamos el namespaced SDK v8
-import { CalendarEvent } from "../../interfaces/CalendarEvent";
+import { CalendarEvent } from "../models/CalendarEvent";
+import {toTimestamp} from "../../utils/toTimestamp";
 
 const db = firebase.firestore();
 
@@ -45,11 +46,6 @@ export function useReservationsLogic(
         firebase.firestore.QueryDocumentSnapshot[]
     >([]);
 
-    // Helper: convertir Date a Timestamp namespaced
-    const toTimestamp = (date: Date): firebase.firestore.Timestamp => {
-        return firebase.firestore.Timestamp.fromDate(date);
-    };
-
     // --- Función para “cargar página” (initial, next, prev) ---
     const loadPage = useCallback(
         async (direction: "initial" | "next" | "prev" = "initial") => {
@@ -57,6 +53,7 @@ export function useReservationsLogic(
             try {
                 let ref = db
                     .collection("reservas")
+                    .where("asistencia", "in", ["PENDIENTE", "ASISTENCIA"])
                     .where("fecha_entrada", ">=", toTimestamp(startDate))
                     .where("fecha_entrada", "<", toTimestamp(endDate))
                     .orderBy("fecha_entrada", "asc")
@@ -67,7 +64,6 @@ export function useReservationsLogic(
                     // Para retroceder, sacamos la última página del historial
                     const history = [...firstDocsStack];
                     history.pop();
-                    const prevFirstDoc = history[history.length - 1];
                     setFirstDocsStack(history);
                 }
 
@@ -110,7 +106,7 @@ export function useReservationsLogic(
                             asistencia: data.asistencia || "PENDIENTE",
                         };
                     });
-                    console.log()
+                    console.log(arr)
                     setReservas(arr);
                 } else {
                     setReservas([]);
@@ -165,7 +161,6 @@ export function useReservationsLogic(
 
             snapshot.docs.forEach((doc) => {
                 const data = doc.data();
-                const entrada = data.fecha_entrada.toDate();
                 const salida = data.fecha_salida.toDate();
 
                 if (
@@ -244,7 +239,7 @@ export function useReservationsLogic(
                 throw new Error(JSON.stringify(availabilityErrors));
             }
 
-            // 2) Si está OK, buscamos el doc y actualizamos
+            // 2) Si está OK, buscamos el doc. y actualizamos
             try {
                 const querySnap = await db
                     .collection("reservas")

@@ -23,17 +23,17 @@ export default function NavBarOptions({
         expanded={expanded}
       />
       <NavItem
+        link="/asistencia"
+        svgIcon={<Svg.MessagesSvg />}
+        title="Asistencias"
+        expanded={expanded}
+      />
+      <NavItem
         link="/estudiantes"
         svgIcon={<Svg.UsersSvg />}
         title="Estudiantes"
         expanded={expanded}
       />
-      {/*<NavItem*/}
-      {/*  link="/messages"*/}
-      {/*  svgIcon={<Svg.MessagesSvg />}*/}
-      {/*  title="Messages"*/}
-      {/*  expanded={expanded}*/}
-      {/*/>*/}
       {smallScreen && (
         <>
           <NavItem link="/settings" svgIcon={<Svg.CogSvg />} title="Settings" />

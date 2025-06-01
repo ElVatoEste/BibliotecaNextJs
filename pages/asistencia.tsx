@@ -3,15 +3,16 @@ import Shell from "../components/shell";
 import Content from "../components/content/Content";
 import { GetServerSidePropsContext } from "next";
 import nookies from "nookies";
+import AttendanceTable from "../components/asistencias/AttendanceTable";
 
 
-export default function Messages() {
+export default function Asistencia() {
   return (
-    <Shell>
-      <Content title="Messages">
-        <>Messages</>
-      </Content>
-    </Shell>
+      <Shell>
+        <Content title="Gestión de Asistencias">
+          <AttendanceTable />
+        </Content>
+      </Shell>
   );
 }
 
@@ -24,6 +25,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   if (!authenticated) {
     ctx.res.writeHead(302, { Location: "/login" });
     ctx.res.end();
+    return { props: {} }; // requerido incluso después de redirigir
   }
 
   return {
