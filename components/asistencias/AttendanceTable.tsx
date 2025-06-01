@@ -157,7 +157,7 @@ export default function AttendanceTable({ className }: AttendanceTableProps) {
     }, [month, year])
 
     return (
-        <div className={`h-screen flex flex-col max-w-full w-full mx-auto px-4 md:px-6 lg:px-8 ${className}`}>
+        <div className={`h-max flex flex-col max-w-full w-full mx-auto px-4 md:px-6 lg:px-8 ${className}`}>
             {/* Notificación */}
             {notification && (
                 <div
