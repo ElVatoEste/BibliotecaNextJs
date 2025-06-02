@@ -28,7 +28,6 @@ export const AuthProvider: React.FC = ({ children }) => {
       console.log("UID:", payload.user_id);
       console.log("Email:", payload.email);
 
-
       nookies.set(null, "token", token, { path: "/" });
     });
   }, []);

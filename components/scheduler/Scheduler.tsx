@@ -28,15 +28,8 @@ function SchedulerInner() {
     const [showNoReservationsModal, setShowNoReservationsModal] = useState(false);
     const [addEditData, setAddEditData] = useState<{ date?: Date; event?: CalendarEvent } | null>(null);
 
-    // 1) Al montar, cargamos las reservas del mes inicial
-    useEffect(() => {
-        const inicio = startOfMonth(monthToShow);
-        const fin = endOfMonth(monthToShow);
-        setStartDate(inicio);
-        setEndDate(fin);
-    }, []);
 
-    // 2) Solo abrimos el “Sin Reservas” cuando ya cargó y no hay datos
+    // “Sin Reservas” cuando ya cargó y no hay datos
     useEffect(() => {
         if (!loading && reservas.length === 0) {
             setShowNoReservationsModal(true);
@@ -77,7 +70,7 @@ function SchedulerInner() {
         setAddEditData(null);
     };
 
-    // 3) Cuando cambie de mes en el calendario, actualizamos el estado local y los rangos de contexto
+    // Cuando cambie de mes en el calendario, actualizamos el estado local y los rangos de contexto
     const handleMonthChange = (newMonthDate: Date) => {
         setMonthToShow(newMonthDate);
 

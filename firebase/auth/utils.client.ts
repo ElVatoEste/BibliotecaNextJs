@@ -1,7 +1,7 @@
 // src/utils/auth.ts
 import firebase, { auth, db } from "../clientApp";
 import nookies from "nookies";
-import { isEmailAllowed } from "../isEmailAllowed";
+import { isEmailAllowed } from "./isEmailAllowed";
 import {User} from "../models/User";
 
 const DEFAULT_ROLES = ["base"];

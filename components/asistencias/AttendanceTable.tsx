@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, {useEffect, useMemo, useState} from "react"
 import type { CalendarEvent } from "../../firebase/models/CalendarEvent"
 import { actualizarAsistenciaReserva, getReservasByMonthPaginated } from "../../firebase/asistencias/useAsistencias"
 import { ChevronLeft, ChevronRight, Search, Check, X, Clock, Loader2, Calendar, User, Filter } from "lucide-react"
@@ -10,7 +10,7 @@ interface AttendanceTableProps {
 }
 
 export default function AttendanceTable({ className }: AttendanceTableProps) {
-    const today = new Date()
+    const today = useMemo(() => new Date(), []);
 
     // Estado principal
     const [month, setMonth] = useState(today.getMonth())
@@ -36,6 +36,7 @@ export default function AttendanceTable({ className }: AttendanceTableProps) {
         setNotification({ type, message })
         setTimeout(() => setNotification(null), 3000)
     }
+
 
     // Datos filtrados
     const filteredReservas = reservas.filter((reserva) => {

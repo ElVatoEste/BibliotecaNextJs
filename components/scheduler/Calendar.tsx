@@ -34,10 +34,6 @@ export default function Calendar({
     const [currentDate, setCurrentDate] = useState(initialDate);
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
-    useEffect(() => {
-        setCurrentDate(initialDate);
-    }, [initialDate]);
-
     const calendarDays = useMemo(() => {
         const startMonth = startOfMonth(currentDate);
         const endMonth = endOfMonth(currentDate);
@@ -57,21 +53,17 @@ export default function Calendar({
         return map;
     }, [events]);
 
-    // 3) SOLO aquí llamamos a onChangeMonth cuando el usuario hace click en ‹ o ›
     const prevMonth = () => {
         setCurrentDate((d) => {
             const newDate = subMonths(d, 1);
-            // Solo aquí notificamos al padre que cambió de mes:
             onChangeMonth && onChangeMonth(newDate);
             return newDate;
         });
     };
 
-    // 6) Maneja click en “›” para ir al mes siguiente:
     const nextMonth = () => {
         setCurrentDate((d) => {
             const newDate = addMonths(d, 1);
-            // Solo aquí notificamos al padre que cambió de mes:
             onChangeMonth && onChangeMonth(newDate);
             return newDate;
         });
@@ -112,9 +104,9 @@ export default function Calendar({
                             key={iso}
                             onClick={() => inMonth && onDateSelect?.(day)}
                             className={`flex flex-col p-1 cursor-pointer h-full
-                ${inMonth ? "bg-white" : "bg-gray-50"}
-                ${isToday ? "border-2 border-blue-500" : ""}
-                hover:bg-blue-50`}
+                            ${inMonth ? "bg-white" : "bg-gray-50"}
+                            ${isToday ? "border-2 border-blue-500" : ""}
+                            hover:bg-blue-50`}
                         >
                             {/* Día */}
                             <div
