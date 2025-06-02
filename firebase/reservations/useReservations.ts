@@ -1,5 +1,4 @@
-// firebase/reservations/useReservations.ts
-import { useState, useEffect, useCallback } from "react";
+import {useState, useEffect, useCallback} from "react";
 import firebase from "../clientApp"; // Importamos el namespaced SDK v8
 import { CalendarEvent } from "../models/CalendarEvent";
 import {toTimestamp} from "../../utils/toTimestamp";
@@ -27,7 +26,6 @@ export function useReservationsLogic(
     const [reservas, setReservas] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // --- Definimos rango por defecto: mes actual + otro mes ---
     const now = new Date();
     const defaultStart = initialStartDate
         ? initialStartDate

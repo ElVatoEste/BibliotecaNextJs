@@ -1,4 +1,4 @@
-import {db} from "./clientApp";
+import {db} from "../clientApp";
 
 const REQUIRED_DOMAIN = "uamv.edu.ni";
 

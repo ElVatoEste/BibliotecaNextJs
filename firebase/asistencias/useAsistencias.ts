@@ -12,16 +12,12 @@ export interface CalendarEventWithDocId extends CalendarEvent {
 export async function getReservasByMonthPaginated(
     year: number,
     month: number, // 0-indexed: enero = 0
-    pageSize = 10,
+    pageSize = 30,
     lastDoc: firebase.firestore.DocumentSnapshot | null = null
 ) {
 
-    console.log(pageSize)
     const start = new Date(year, month, 1);
     const end = new Date(year, month + 1, 1);
-
-    // Debug en consola:
-    console.log("Rango consulta:", start.toISOString(), "→", end.toISOString());
 
     let query = db
         .collection("reservas")
