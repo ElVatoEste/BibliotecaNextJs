@@ -104,13 +104,11 @@ export function useReservationsLogic(
                             asistencia: data.asistencia || "PENDIENTE",
                         };
                     });
-                    console.log(arr)
                     setReservas(arr);
                 } else {
                     setReservas([]);
                 }
             } catch (err) {
-                console.error("Error cargando reservas:", err);
                 setReservas([]);
             } finally {
                 setLoading(false);

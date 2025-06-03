@@ -84,10 +84,10 @@ export const SideNavFooter = ({ setExpanded }: sideNavFooterProps) => {
 
     return (
         <>
-            <Link href="/settings" passHref>
+            <Link href="/ajustes" passHref>
                 <a className="flex ml-1 items-end mt-auto px-1 no-underline text-white hover:opacity-100">
                     <Svg.CogSvg />
-                    {mounted && !collapsed && <div className="pl-2">Settings</div>}
+                    {mounted && !collapsed && <div className="pl-2">Ajustes</div>}
                 </a>
             </Link>
 

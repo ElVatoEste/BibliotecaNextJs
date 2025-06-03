@@ -3,6 +3,7 @@
 import firebase from "../clientApp";
 import { CalendarEvent } from "../models/CalendarEvent";
 import { toTimestamp } from "../../utils/toTimestamp";
+
 const db = firebase.firestore();
 
 export interface CalendarEventWithDocId extends CalendarEvent {
@@ -53,7 +54,6 @@ export async function getReservasByMonthPaginated(
         };
     });
 
-    console.log("Reservas obtenidas:", reservas);
     return {
         reservas,
         lastDoc: snapshot.docs[snapshot.docs.length - 1] || null,

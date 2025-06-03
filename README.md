@@ -37,7 +37,7 @@ Start by forking the repository (since it is a template, click the **_Use this t
    - Add a web app to the project. Do not check the _"add Firebase hosting"_ box
 2. Copy the config strings in the SDK setup (apiKey, authDomain, ...) into their corresponding entries in your `.env.local` file
    - Otherwise, you can ignore this part. We already installed the SDK in step I.1, and we are putting our config strings in the environment variables, instead of explicitly in the code
-3. In the Firebase console, go to Project Settings > Service accounts. Here we will fill the remaining entries in our environment variables file
+3. In the Firebase console, go to Project Ajustes > Service accounts. Here we will fill the remaining entries in our environment variables file
    1. Copy the Firebase service account string (starting in _"firebase-adminsdk"_) into the `FIREBASE_CLIENT_EMAIL` env entry
    2. Click the button to generate and download a new application private key. This will download a JSON file to your machine
    3. Open the JSON file. We are only interested in the pair with name `"private_key"`. Copy the _entire value_ of the key
@@ -55,7 +55,7 @@ The template supports authentication by Google, GitHub, and Email/Password. You 
 3. Add Email/Password as a new authentication provider. This can be done entirely from the Firebase console
 4. Add GitHub as an authentication provider. This one is a bit more complicated
    1. In the Firebase console, begin adding GitHub by sliding the _"Enable"_ slider
-   2. Navigate to [GitHub](https://github.com/) > Settings > Developer settings > [OAuth Apps](https://github.com/settings/developers)
+   2. Navigate to [GitHub](https://github.com/) > Ajustes > Developer settings > [OAuth Apps](https://github.com/settings/developers)
    3. Add a new auth app, with a distinguishable name. The Homepage URL can simply be `https://localhost:8080`
    4. Copy the callback URL from the bottom of the Firebase GitHub auth config page into the entry on GitHub. click Register Application
    5. Copy the Client ID displayed on the new GitHub page to the appropriate entry in Firebase

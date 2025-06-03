@@ -46,9 +46,9 @@ export default function NavOptions({
             {smallScreen && (
                 <>
                     <NavItem
-                        link="/settings"
+                        link="/ajustes"
                         svgIcon={<Svg.CogSvg />}
-                        title="Settings"
+                        title="Ajustes"
                         expanded={expanded}
                     />
                     <a

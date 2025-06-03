@@ -9,7 +9,7 @@ export default function Splash() {
   return (
       <>
         <div
-            className="relative h-screen bg-cover bg-center flex flex-col"
+            className="relative min-h-screen w-full bg-cover bg-center flex flex-col"
             style={{
               backgroundImage: `url(${fondoPagina.src})`,
             }}
