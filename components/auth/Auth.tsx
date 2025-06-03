@@ -8,78 +8,80 @@ import {
 } from "../../firebase/auth/utils.client";
 
 export default function AuthForm() {
-  const router = useRouter();
-  const [mode, setMode] = useState<"login" | "register" | "reset">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+    const router = useRouter();
+    const [mode, setMode] = useState<"login" | "register" | "reset">("login");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [info, setInfo] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
-  const resetState = () => {
-    setError(null);
-    setInfo(null);
-    setLoading(false);
-  };
+    const resetState = () => {
+        setError(null);
+        setInfo(null);
+        setLoading(false);
+    };
 
-  const onEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setInfo(null);
-    setLoading(true);
-    try {
-      if (mode === "login") {
-        await signInWithEmail(email, password);
-      } else {
-        await signUpWithEmail(email, password);
-      }
-      router.push("/");
-    } catch (err: any) {
-      // mensajes personalizados
-      if (
-          err.code === "auth/user-not-found" ||
-          err.message.includes("INVALID_LOGIN_CREDENTIALS")
-      ) {
-        setError("Correo o contraseña incorrectos.");
-      } else if (err.code === "auth/email-already-in-use") {
-        setError("El correo ya está registrado.");
-      } else {
-        setError(err.message || "Error en la operación.");
-      }
-      setLoading(false);
-    }
-  };
+    const onEmailSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        resetState();
+        setLoading(true);
+        try {
+            if (mode === "login") {
+                await signInWithEmail(email, password);
+            } else {
+                await signUpWithEmail(email, password);
+            }
+            router.push("/");
+        } catch (err: any) {
+            // Si es el caso de vincular cuenta Google+contraseña:
+            if (err.code === "needs-account-link") {
+                setError(err.message || "Este correo ya fue registrado con Google.");
+            }
+            // Otros mensajes de error personalizados:
+            else if (
+                err.code === "auth/user-not-found" ||
+                err.message.includes("INVALID_LOGIN_CREDENTIALS")
+            ) {
+                setError("Correo o contraseña incorrectos.");
+            } else if (err.code === "auth/email-already-in-use") {
+                setError("El correo ya está registrado.");
+            } else {
+                setError(err.message || "Error en la operación.");
+            }
+            setLoading(false);
+        }
+    };
 
-  const onGoogle = async () => {
-    setError(null);
-    setInfo(null);
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message || "Error con Google");
-      setLoading(false);
-    }
-  };
+    const onGoogle = async () => {
+        resetState();
+        setLoading(true);
+        try {
+            await signInWithGoogle();
+            router.push("/");
+        } catch (err: any) {
+            setError(err.message || "Error con Google");
+            setLoading(false);
+        }
+    };
 
-  const onReset = async () => {
-    setError(null);
-    setInfo(null);
-    setLoading(true);
-    try {
-      await resetPassword(email);
-      setInfo("Revisa tu correo para restablecer la contraseña.");
-    } catch (err: any) {
-      setError(err.message || "No fue posible enviar el correo.");
-    }
-    setLoading(false);
-  };
+    const onReset = async () => {
+        resetState();
+        setLoading(true);
+        try {
+            await resetPassword(email);
+            setInfo("Revisa tu correo para restablecer la contraseña.");
+        } catch (err: any) {
+            setError(err.message || "No fue posible enviar el correo.");
+        }
+        setLoading(false);
+    };
 
+
+  // 2) Si needsLink es false, renderizamos el formulario normal:
   return (
       <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
-
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           {mode === "login"
               ? "Iniciar sesión"

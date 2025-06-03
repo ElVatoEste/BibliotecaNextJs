@@ -21,9 +21,17 @@ const ensureUserDoc = async (
       return;
     }
 
+    // 1) Verificar si hay al menos un documento en "users"
+    const anyUser = await db.collection("users").limit(1).get();
+    // Si no existe ningún usuario, este será el primero
+    const isFirstUser = anyUser.empty;
+
+    // 2) Si es el primer usuario, forzar rol = ["admin"]
+    const assignedRoles = isFirstUser ? ["admin", "base"] : roles;
+
     const newUser: Omit<User, "id"> = {
       email,
-      roles,
+      roles: assignedRoles,
       createdAt: firebase.firestore.FieldValue.serverTimestamp() as any,
     };
 
@@ -39,6 +47,7 @@ const ensureUserDoc = async (
     throw error;
   }
 };
+
 
 export const signInWithEmail = async (
     email: string,
@@ -62,19 +71,42 @@ export const signUpWithEmail = async (
   }
   console.log("[signUp] Correo permitido.");
 
-  const userCred = await auth.createUserWithEmailAndPassword(email, password);
-  await userCred.user?.getIdToken(true); // refresca token
-  console.log("[signUp] Usuario creado en Auth:", userCred.user?.uid);
+  try {
+    // Intentamos crear la cuenta normalmente
+    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+    await userCred.user?.getIdToken(true);
+    console.log("[signUp] Usuario creado en Auth:", userCred.user?.uid);
 
-  // Esperar un momento por si Firebase aún propaga el estado
-  await new Promise((resolve) => setTimeout(resolve, 300));
+    // Esperamos un momento para que Firebase propague el estado
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-  // Ahora creamos el doc con lista de roles
-  await ensureUserDoc(userCred.user!.uid, email, DEFAULT_ROLES);
+    // Creamos el documento en Firestore
+    await ensureUserDoc(userCred.user!.uid, email, DEFAULT_ROLES);
 
-  const token = await userCred.user!.getIdToken();
-  nookies.set(undefined, "token", token, { path: "/" });
-  return userCred;
+    const token = await userCred.user!.getIdToken();
+    nookies.set(undefined, "token", token, { path: "/" });
+    return userCred;
+  } catch (error: any) {
+    // Si el correo ya existe
+    if (error.code === "auth/email-already-in-use") {
+      // Averiguamos con qué proveedores está registrado ese email
+      const methods = await auth.fetchSignInMethodsForEmail(email);
+
+      console.log("[signUp] metodos registrados de la cuenta:", methods);
+
+      // Si ya existe con Google, invitamos al usuario a iniciar sesión con Google y luego vinculamos la credencial
+      if (methods.includes("google.com") || methods.length === 0) {
+        throw {
+          code: "needs-account-link",
+          message:
+              "Este correo ya se registró con Google. Inicia sesión con Google y luego podrás asignar una contraseña.",
+        };
+      }
+    }
+    // Otros errores, relanzamos
+    console.error("[signUp] Error al crear usuario:", error);
+    throw error;
+  }
 };
 
 // ---------- GOOGLE ---------- //
@@ -95,6 +127,50 @@ export const signInWithGoogle = async (): Promise<firebase.auth.UserCredential> 
   nookies.set(undefined, "token", token, { path: "/" });
   return userCred;
 };
+
+// ---------- Ligar (link) la cuenta Google con correo+contraseña ---------- //
+export const linkGoogleWithEmail = async (
+    email: string,
+    password: string
+): Promise<void> => {
+  console.log("[link] Verificando si correo está permitido:", email);
+
+  if (!(await isEmailAllowed(email))) {
+    console.log("[link] Correo bloqueado por isEmailAllowed.");
+    throw { code: "auth/not-allowed", message: "Correo no autorizado." };
+  }
+  console.log("[link] Correo permitido.");
+
+  const currentUser = firebase.auth().currentUser;
+
+  if (!currentUser || !currentUser.email || currentUser.email !== email) {
+    throw {
+      code: "auth/session-mismatch",
+      message: "Inicia sesión con Google antes de vincular la contraseña.",
+    };
+  }
+
+  const emailCredential = firebase.auth.EmailAuthProvider.credential(email, password);
+
+  try {
+    await currentUser.linkWithCredential(emailCredential);
+    console.log("[link] Cuenta Google vinculada con correo y contraseña.");
+  } catch (error: any) {
+    if (error.code === "auth/credential-already-in-use") {
+      console.warn("[link] Ya estaba vinculada con esta credencial.");
+    } else {
+      console.error("[link] Error al vincular:", error);
+      throw error;
+    }
+  }
+
+  await ensureUserDoc(currentUser.uid, email, DEFAULT_ROLES);
+
+  const token = await currentUser.getIdToken(true);
+  nookies.set(undefined, "token", token, { path: "/" });
+};
+
+
 
 // Recuperar contraseña
 export const resetPassword = async (email: string): Promise<void> => {
